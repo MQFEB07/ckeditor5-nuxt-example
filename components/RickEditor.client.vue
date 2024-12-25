@@ -73,9 +73,16 @@ import {
   Undo,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
-
+import FullScreen from './plugins/fullscreen.js';
 const modelValue = defineModel("modelValue");
+const props = defineProps({
+  maxHeight: {
+    type: String,
+    default: "600px"
+  }
+});
 const editorConfig = {
+  maxHeight: props.maxHeight,
   toolbar: {
     items: [
       "undo",
@@ -120,10 +127,13 @@ const editorConfig = {
       "todoList",
       "outdent",
       "indent",
+      "|",
+      "fullScreen"
     ],
     shouldNotGroupWhenFull: false,
   },
   plugins: [
+    FullScreen,
     AccessibilityHelp,
     Alignment,
     Autoformat,
@@ -303,6 +313,7 @@ const editorConfig = {
   menuBar: {
     isVisible: true,
   },
+  licenseKey: "GPL",
   placeholder: "Type or paste your content here!",
   style: {
     definitions: [
@@ -363,12 +374,19 @@ const editorConfig = {
     ],
   },
 };
+function onReady(editor) {
+  editor.editing.view.change(writer => {
+    writer.setStyle("min-height", "200px", editor.editing.view.document.getRoot())
+    writer.setStyle("max-height", props.maxHeight, editor.editing.view.document.getRoot())
+  })
+}
 </script>
 
 <template>
   <Ckeditor
     :editor="ClassicEditor"
     :config="editorConfig"
+    @ready="onReady"
     v-model="modelValue"
   />
 </template>
